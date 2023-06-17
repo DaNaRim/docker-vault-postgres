@@ -1,0 +1,32 @@
+version: '3.8'
+
+volumes:
+  postgres_data:
+    driver: local
+
+services:
+  postgres:
+    # https://hub.docker.com/layers/postgres/library/postgres/14.1-alpine/images/sha256-884c142deb4a141f67489c807534ec6139f13b9a6432d2f87a4de283aaec0b5c?context=explore
+    image: postgres@sha256:884c142deb4a141f67489c807534ec6139f13b9a6432d2f87a4de283aaec0b5c
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+  vault:
+    #Version 1.2.2 - https://hub.docker.com/layers/vault/library/vault/1.9.2/images/sha256-120f43bbc0ee041245631b78e6287e93861ae73674c034e4882bdc30290cf638?context=explore
+    image: vault@sha256:120f43bbc0ee041245631b78e6287e93861ae73674c034e4882bdc30290cf638
+    container_name: vault
+    ports:
+      - '8200:8200'
+    restart: always
+    volumes:
+      - ./volumes/vault/logs:/vault/logs
+      - ./volumes/vault/file:/vault/file
+      - ./volumes/vault/config:/vault/config
+    cap_add:
+      - IPC_LOCK
+    entrypoint: vault server -config=/vault/config/vault.json
